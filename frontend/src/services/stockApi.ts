@@ -9,7 +9,7 @@ export async function getStockData(
     );
 
     if (!response.ok) {
-        throw new Error("FAiled to fetch stock data");
+        throw new Error("Failed to fetch stock data");
     }
 
     const data: DailyStockData[] = await response.json();
