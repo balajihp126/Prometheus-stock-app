@@ -14,11 +14,39 @@ export async function getStockData(symbol: string): Promise<DailyStockData[]> {
     }
 
     const data = await response.json();
+    const result = data?.chart?.result?.[0];
 
-    const timestamp = data["chart"]["result"][0]["timestamp"];
-    const low = data["chart"]["result"][0]["indicators"]["quote"][0]["low"];
-    const high = data["chart"]["result"][0]["indicators"]["quote"][0]["high"];
-    const volume = data["chart"]["result"][0]["indicators"]["quote"][0]["volume"];
+    if (!result) {
+        throw new Error(`No stock data found for symbol: ${symbol}`);
+    }
+
+    const timestamp = result.timestamp;
+    const quote = result.indicators?.quote?.[0];
+
+    if (!timestamp || !quote) {
+        throw new Error(`Incomplete stock data returned for symbol: ${symbol}`);
+    }
+
+    return aggregateStockData(timestamp, quote.low, quote.high, quote.volume);
+    
+
+}
+
+function roundToDecimals(num: number, places: number): number {
+  const factor = Math.pow(10, places);
+  return Math.round(num * factor) / factor;
+}
+
+export function aggregateStockData(
+    timestamp: number[],
+    low: (number | null)[],
+    high: (number | null)[],
+    volume: (number | null)[]
+): DailyStockData[] {
+
+    if (!low || !high || !volume) {
+        throw new Error(`Missing quote data for symbol`);
+    }
 
     const lowMap: Record<string, number[]> = {};
     const highMap: Record<string, number[]> = {};
@@ -26,6 +54,19 @@ export async function getStockData(symbol: string): Promise<DailyStockData[]> {
     const stockData: DailyStockData[] = [];
 
     for (let i: number = 0; i < timestamp.length; i++) {
+        const currentTime = timestamp[i];
+        const currentLow = low[i];
+        const currentHigh = high[i];
+        const currentVolume = volume[i]; 
+        if (
+                currentTime == null ||
+                currentLow == null ||
+                currentHigh == null ||
+                currentVolume == null
+            ) {
+                continue;
+            }
+
         let date = new Date(timestamp[i] * 1000).toLocaleDateString("en-CA", {
             timeZone: "America/New_York",
             month: "short",
@@ -37,9 +78,9 @@ export async function getStockData(symbol: string): Promise<DailyStockData[]> {
             highMap[date] = [];
             volumeMap[date] = [];
         }
-        lowMap[date].push(low[i]);
-        highMap[date].push(high[i]);
-        volumeMap[date].push(volume[i]);
+        lowMap[date].push(currentLow);
+        highMap[date].push(currentHigh);
+        volumeMap[date].push(currentVolume);
 
     }
 
@@ -49,15 +90,17 @@ export async function getStockData(symbol: string): Promise<DailyStockData[]> {
     for (const [day, values] of Object.entries(lowMap)) {
         stockData.push({
             day: day,
-            lowAverage: getAverage(values),
-            highAverage: getAverage(highMap[day]),
+            lowAverage: roundToDecimals(getAverage(values), 4),
+            highAverage: roundToDecimals(getAverage(highMap[day]), 4),
             volume: volumeMap[day].reduce((sum, val) => sum + val, 0)
         })
 
 
     }
 
-    return stockData
-    
+    if (stockData.length === 0) {
+        throw new Error(`No usable stock data found for symbol`);
+    }
 
+    return stockData
 }

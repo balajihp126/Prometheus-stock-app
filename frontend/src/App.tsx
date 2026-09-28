@@ -10,6 +10,9 @@ function App() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [searchedSymbol, setSearchedSymbol] = useState("");
+    const sortedData = [...data].sort(
+                (a, b) => new Date(b.day).getTime() - new Date(a.day).getTime()
+            );
 
     async function handleSearch() {
         try {
@@ -22,7 +25,7 @@ function App() {
 
             const result = await getStockData(symbol.trim().toUpperCase());
             setSearchedSymbol(symbol.trim().toUpperCase());
-
+          
             setData(result);
         } catch {
             setError("Unable to load stock data.");
@@ -56,31 +59,42 @@ function App() {
               </div>
             )}
             {!loading && data.length > 0 && (
-                <><><h2>{searchedSymbol} — Past Month</h2><table className="stock-table">
-              <thead>
-                <tr>
-                  <th>Day</th>
-                  <th>Low Average</th>
-                  <th>High Average</th>
-                  <th>Volume</th>
-                </tr>
-              </thead>
+                <>
+                    <h2>{searchedSymbol} - Past Month</h2>
 
-              <tbody>
-                {data.map((row) => (
-                  <tr key={row.day}>
-                    <td>{row.day}</td>
-                    <td>{row.lowAverage.toFixed(2)}</td>
-                    <td>{row.highAverage.toFixed(2)}</td>
-                    <td>{row.volume.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></><StockChart data={data} /></>
+                    <div className="data-layout">
+                        <div className="chart-section">
+                            <StockChart data={data} />
+                        </div>
+
+                        <div className="table-section">
+                            <table className="stock-table">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Low Average</th>
+                                        <th>High Average</th>
+                                        <th>Volume</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {sortedData.map((row) => (
+                                        <tr key={row.day}>
+                                            <td>{row.day}</td>
+                                            <td>{row.lowAverage.toFixed(4)}</td>
+                                            <td>{row.highAverage.toFixed(4)}</td>
+                                            <td>{row.volume.toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
             )}
 
-        
-        </div>
+            </div>
       </div>
     );
 }

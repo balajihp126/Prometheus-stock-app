@@ -20,18 +20,22 @@ function StockChart({ data }: StockChartProps) {
                         })
                     }
                 />
-                <YAxis />
+                <YAxis domain={["auto", "auto"]}/>
                 <Tooltip />
                 <Legend />
                 <Line 
                     type="monotone"
                     dataKey="lowAverage"
                     name="Average Low"
+                    stroke="#eb5325"
+                    strokeWidth={2}
                 />
                 <Line 
                     type="monotone"
                     dataKey="highAverage"
                     name="Average High"
+                    stroke="#17a926"
+                    strokeWidth={2}
                 />
             </LineChart>
         </ResponsiveContainer>
