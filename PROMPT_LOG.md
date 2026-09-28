@@ -125,3 +125,10 @@ Create an initial README template I can work from
 
 ### Why I asked
 This would decrease the time spent creating instructions which would be more easily adapted from what ChatGPT already provided me.
+
+## Manual changes and decisions made
+
+* I chose to work with React + Typescript due to my CS capstone class I am currently enrolled in. In the project for this class, I elected to do frontend development to learn this technologies better. This technical assesment provided for another route to gain experience in these technologies.
+* I decided to have both a chart and graph to make the application both visually appealing, and functional. While just the table conveys the needed information, a visual aid makes the app seem more professional and polished.
+* I decided to reverse the chronological order of the dates in the table for easier intuition. 
+* I realized there might be some complexity when it came to timezone, since the data was aggregated by the day. I decided to use EST since the US stock market is based on New York time. 
