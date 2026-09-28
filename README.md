@@ -76,6 +76,7 @@ cd prometheus-stock-app
 Navigate to the backend directory:
 
 ```text
+cd backend
 npm install
 npm run dev
 ```
@@ -87,6 +88,7 @@ http://localhost:3000
 ### Frontend
 Open a second terminal and navigate to the frontend directory:
 ```text
+cd frontend
 npm install
 npm run dev
 ```
